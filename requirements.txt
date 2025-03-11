@@ -11,6 +11,7 @@ psycopg2-binary
 plotly-express
 numpy
 scikit-learn
+chromadb
 langchain
 langchain-chroma
 langchain-google_genai
