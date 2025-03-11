@@ -1,7 +1,7 @@
 --- Cliente da conta 8597 e containvestimento 101
 INSERT INTO containvestimento (id_investimento, id_conta, perfil_invest, data_abertura)
 VALUES 
-(nextval('seq_conta_investimento'), 8597, 'Moderado', '2025-03-10');
+(nextval('seq_conta_investimento'), 8597, 'Moderado', '2025-01-10');
 
 INSERT INTO fundoinvestimento (id_fundo, id_investimento, nome, data_aplicacao, valor_investido, perfil_risco, rentabilidade)
 VALUES 
