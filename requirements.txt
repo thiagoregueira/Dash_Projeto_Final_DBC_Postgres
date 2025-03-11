@@ -12,5 +12,5 @@ plotly-express
 numpy
 scikit-learn
 langchain
-langchain_chroma
-langchain_google_genai
+langchain-chroma
+langchain-google_genai
