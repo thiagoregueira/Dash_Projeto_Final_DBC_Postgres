@@ -15,3 +15,4 @@ chromadb
 langchain
 langchain-chroma
 langchain-google_genai
+sqlite3
