@@ -1,0 +1,16 @@
+yfinance
+pandas
+python-dotenv
+bcb
+streamlit
+plotly
+selenium
+webdriver-manager
+chardet
+psycopg2
+plotly-express
+numpy
+scikit-learn
+langchain
+langchain_chroma
+langchain_google_genai

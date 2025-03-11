@@ -1,0 +1,26 @@
+O que é o FinUp Investimentos?
+
+O que encontrarei nestes dashboards?
+
+Com quais fundos de investimentos a finup trabalha?
+
+O que seria o indice ibrx50?
+
+Quais sao os indicadores na secao de indicadores economicos ?
+
+Qual a melhor forma de usar os dashs?
+
+Com quais criptomoedas o finup trabalha?
+
+
+
+Fundo FinupFixo, rentabilidade = 0.012, perfil_risco = Baixo
+Fundo FinupTech, rentabilidade = 0.018, perfil_risco = Moderado
+CDB Finup, rentabilidade = 0.013, perfil_risco = Baixo
+Fundo FinupTesouro, rentabilidade = 0.015, perfil_risco = Moderado
+Fundo FinupSelic, rentabilidade = 0.017, perfil_risco = Baixo 
+
+
+8597 / 00000000000 / 112233
+10555 / 00000000001 / 896300
+10556 / 00000000002 / 778899
