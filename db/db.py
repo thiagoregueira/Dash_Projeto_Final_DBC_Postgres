@@ -4,21 +4,17 @@ Módulo para conexão com o banco de dados PostgreSQL
 
 import pandas as pd
 import sqlalchemy as sa
-from dotenv import load_dotenv
-import os
+import streamlit as st
 
-# Carrega as variáveis de ambiente do arquivo .env
-load_dotenv()
-
-# Dados de conexão (lidos do .env)
-DB_HOST = os.getenv("DB_HOST")
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
+# Dados de conexão (lidos do secrets do Streamlit)
+DB_HOST = st.secrets["secrets"]["DB_HOST"]
+DB_NAME = st.secrets["secrets"]["DB_NAME"]
+DB_USER = st.secrets["secrets"]["DB_USER"]
+DB_PASSWORD = st.secrets["secrets"]["DB_PASSWORD"]
 
 # Verifica se todas as variáveis foram carregadas com sucesso
 if not all([DB_HOST, DB_NAME, DB_USER, DB_PASSWORD]):
-    raise ValueError("Variáveis de ambiente não configuradas corretamente no arquivo .env")
+    raise ValueError("Variáveis de ambiente não configuradas corretamente no arquivo .streamlit/secrets.toml")
 
 # Criação da URL de conexão
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"

@@ -1,6 +1,6 @@
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+# __import__('pysqlite3')
+# import sys
+# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 import os
 import streamlit as st
@@ -16,7 +16,6 @@ from langchain.prompts import PromptTemplate
 # from langchain_community.embeddings import GPT4AllEmbeddings
 # from langchain_openai import OpenAIEmbeddings
 # from openai import OpenAI
-from dotenv import load_dotenv
 from style.style_config import apply_custom_style, COLORS, add_footer
 
 # Aplicar estilo customizado
@@ -25,8 +24,7 @@ apply_custom_style()
 # Título da página
 st.title("❓❔ AjudAI FinUp Investimentos ")
 
-# Carregar variáveis de ambiente
-load_dotenv()
+# As variáveis de ambiente já são carregadas automaticamente do arquivo .streamlit/secrets.toml
 
 # Botão para recarregar a base de conhecimento
 # col1, col2 = st.columns([3, 1])
@@ -38,9 +36,11 @@ load_dotenv()
 #             del st.session_state.chat_history
 #         st.rerun()
 
-# Configurar embeddings
+# Configurar embeddings usando a chave da API do Google do secrets do Streamlit
 embeddings = GoogleGenerativeAIEmbeddings(
-    model="models/text-embedding-004", task_type="retrieval_document"
+    model="models/text-embedding-004",
+    task_type="retrieval_document",
+    google_api_key=st.secrets["secrets"]["GOOGLE_API_KEY"],
 )
 
 # Parâmetros para divisão do texto
@@ -97,11 +97,12 @@ if "vectorstore" not in st.session_state:
 # Função para enviar pergunta ao modelo
 def enviar_pergunta(question, docs):
     try:
-        # Envia a pergunta para a API
+        # Envia a pergunta para a API usando a chave da API do Google do secrets do Streamlit
         llm = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash",
             convert_system_message_to_human=True,
             temperature=0.3,
+            google_api_key=st.secrets["secrets"]["GOOGLE_API_KEY"],
         )
 
         # Criar um sistema de prompt para o modelo

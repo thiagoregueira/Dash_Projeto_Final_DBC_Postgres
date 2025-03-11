@@ -6,11 +6,15 @@ from langchain.chains.question_answering import load_qa_chain
 # from langchain_community.embeddings import GPT4AllEmbeddings
 # from langchain_openai import OpenAIEmbeddings
 # from openai import OpenAI
-from dotenv import load_dotenv
+import streamlit as st
 
-load_dotenv()
+# As variáveis de ambiente são carregadas automaticamente do arquivo .streamlit/secrets.toml
 
-embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", task_type="retrieval_document")
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/text-embedding-004", 
+    task_type="retrieval_document",
+    google_api_key=st.secrets["secrets"]["GOOGLE_API_KEY"]
+)
 
 
 chunk_size = 10
@@ -68,7 +72,11 @@ docs = [doc for doc, score in docs_with_scores]
 def enviar_pergunta(question):
     try:
         # Envia a pergunta para a API
-        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", convert_system_message_to_human=True)
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash", 
+            convert_system_message_to_human=True,
+            google_api_key=st.secrets["secrets"]["GOOGLE_API_KEY"]
+        )
         chain = load_qa_chain(llm, chain_type="stuff")
         
         resposta = chain.run(input_documents=docs, question=question)
