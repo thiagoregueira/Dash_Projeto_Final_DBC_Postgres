@@ -16,32 +16,32 @@ st.set_page_config(
 apply_custom_style()
 
 # Título principal com destaque
-st.title("🚀 Bem-vindo ao FinUp Investimentos - Seu Dashboard Financeiro Completo")
+st.title(" Bem-vindo ao FinUp Investimentos - Seu Dashboard Financeiro Completo")
 
 # Introdução ao dashboard
 st.markdown("""
-## 📊 O que é o FinUp Investimentos?
+## O que é o FinUp Investimentos?
 
 O FinUp Investimentos é um dashboard financeiro interativo que fornece informações atualizadas sobre diversos aspectos do mercado financeiro brasileiro e internacional. Nossa plataforma foi desenvolvida para ajudar tanto investidores experientes quanto iniciantes a acompanhar os principais indicadores e ativos financeiros de forma simples e intuitiva.
 
-### 🔍 O que você encontrará nestes dashboards:
+### O que você encontrará nestes dashboards:
 
-1. **Ações Brasileiras (IBRX50)** 📈
+1. **Ações Brasileiras (IBRX50)** 
    * Acompanhe o desempenho das principais ações da bolsa brasileira
    * Visualize gráficos de evolução de preços
    * Identifique as melhores e piores performances do mercado
 
-2. **Criptomoedas** 💰
+2. **Criptomoedas** 
    * Monitore as principais criptomoedas do mercado global
    * Acompanhe as cotações em dólar americano (USD)
    * Analise tendências e variações de preço
 
-3. **Câmbio** 💱
+3. **Câmbio** 
    * Verifique as cotações das principais moedas em relação ao Real (BRL)
    * Acompanhe a variação cambial ao longo do tempo
    * Compare o desempenho entre diferentes moedas
 
-4. **Indicadores Econômicos** 📊
+4. **Indicadores Econômicos** 
    * Consulte os principais indicadores da economia brasileira
    * Visualize previsões futuras baseadas em análise de dados
    * Entenda como os indicadores se relacionam entre si
@@ -49,9 +49,9 @@ O FinUp Investimentos é um dashboard financeiro interativo que fornece informa�
 
 # Explicação detalhada de cada seção
 st.markdown("""
-## 🧩 Detalhes de cada seção
+## Detalhes de cada seção
 
-### 📈 Ações Brasileiras
+### Ações Brasileiras
 Na seção de **Ações Brasileiras**, você pode:
 * Selecionar qualquer ação do índice IBRX50 (que reúne as 50 ações mais negociadas da B3)
 * Escolher diferentes períodos de análise: 30 dias, mensal ou anual
@@ -61,7 +61,7 @@ Na seção de **Ações Brasileiras**, você pode:
 
 Esta ferramenta é ideal para quem quer acompanhar o mercado acionário brasileiro e identificar oportunidades de investimento.
 
-### 💰 Criptomoedas
+### Criptomoedas
 Na seção de **Criptomoedas**, você encontra:
 * Uma lista das principais criptomoedas do mercado (Bitcoin, Ethereum, etc.)
 * Gráficos de evolução de preço em dólares americanos (USD)
@@ -71,7 +71,7 @@ Na seção de **Criptomoedas**, você encontra:
 
 Esta seção é perfeita para quem deseja acompanhar o mercado de criptoativos e suas flutuações.
 
-### 💱 Câmbio
+### Câmbio
 Na seção de **Câmbio**, você pode:
 * Selecionar diferentes moedas internacionais e ver sua cotação em relação ao Real (BRL)
 * Visualizar a evolução da taxa de câmbio em diferentes períodos
@@ -80,7 +80,7 @@ Na seção de **Câmbio**, você pode:
 
 Esta ferramenta é essencial para quem precisa acompanhar o mercado de câmbio, seja para viagens, importações/exportações ou investimentos internacionais.
 
-### 📊 Indicadores Econômicos
+### Indicadores Econômicos
 Na seção de **Indicadores Econômicos**, você tem acesso a:
 * Dados atualizados dos principais indicadores da economia brasileira:
   * **SELIC**: Taxa básica de juros da economia
@@ -98,7 +98,7 @@ Esta seção é fundamental para entender o cenário macroeconômico brasileiro 
 
 # Adicionando dicas de uso
 st.markdown("""
-## 💡 Como usar o dashboard
+## Como usar o dashboard
 
 1. **Navegação**: Use o menu lateral para alternar entre as diferentes seções do dashboard.
 
@@ -123,7 +123,7 @@ st.sidebar.markdown(
 
 # Adicionando um bloco de informações adicionais
 st.markdown("""
-## ℹ️ Informações importantes
+## Informações importantes
 
 ### Fontes de dados
 * **Ações**: Dados obtidos da B3 (Bolsa de Valores do Brasil)
