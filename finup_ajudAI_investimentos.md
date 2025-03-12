@@ -7,11 +7,14 @@ O FinUp Investimentos é um dashboard financeiro interativo que fornece informa�
 ### 🔍 O que você encontrará nestes dashboards
 
 1. **Fundos de Investimentos**
-   * Fundo FinupFixo, rentabilidade = 0.012, perfil_risco = Baixo
-   * Fundo FinupTech, rentabilidade = 0.018, perfil_risco = Moderado
-   * CDB Finup, rentabilidade = 0.013, perfil_risco = Baixo
-   * Fundo FinupTesouro, rentabilidade = 0.015, perfil_risco = Moderado
-   * Fundo FinupSelic, rentabilidade = 0.017, perfil_risco = Baixo
+
+   | Nome do Fundo | Rentabilidade | Perfil de Risco |
+   |---------------|--------------|----------------|
+   | Fundo FinupFixo | 0.012 | Baixo |
+   | Fundo FinupTech | 0.018 | Moderado |
+   | CDB Finup | 0.013 | Baixo |
+   | Fundo FinupTesouro | 0.015 | Moderado |
+   | Fundo FinupSelic | 0.017 | Baixo |
 
 %%%
 
