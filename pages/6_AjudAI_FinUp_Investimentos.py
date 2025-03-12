@@ -1,6 +1,7 @@
-__import__('pysqlite3')
+__import__("pysqlite3")
 import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 import os
 import streamlit as st
@@ -163,7 +164,7 @@ if prompt := st.chat_input("ajudAI Finup Investimentos Responde..."):
     st.session_state.chat_history.append({"role": "user", "content": prompt})
 
     # Exibir mensagem do usuário
-    st.chat_message("user").write(prompt)
+    st.chat_message("user", avatar="images/icons/cliente_chat_branco.png").write(prompt)
 
     # Exibir mensagem do assistente com loading
     with st.chat_message("assistant", avatar="images/icons/logo_icon.ico"):

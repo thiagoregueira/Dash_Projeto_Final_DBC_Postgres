@@ -4,7 +4,13 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
 from style.style_config import apply_custom_style, COLORS, add_footer
-from auth.user import authenticate_user, get_logged_user, get_user_cpf, get_user_data_by_cpf
+from auth.user import (
+    authenticate_user,
+    get_logged_user,
+    get_user_cpf,
+    get_user_data_by_cpf,
+)
+
 # Importar funções do módulo db.db
 from db.db import (
     get_usuario_by_cpf_senha,
@@ -14,7 +20,7 @@ from db.db import (
     get_fundos_by_id_investimento,
     get_criptos_by_id_investimento,
     get_acoes_by_id_investimento,
-    get_all_dataframes
+    get_all_dataframes,
 )
 
 # Aplicar estilo customizado
@@ -32,7 +38,7 @@ def obter_dados_usuario():
         if not cpf:
             # Se não conseguir obter o CPF, tenta obter os dados básicos
             user_data = get_logged_user()
-            
+
             if user_data:
                 # Extrair informações relevantes
                 return {
@@ -40,21 +46,21 @@ def obter_dados_usuario():
                     "id_usuario": user_data.get("idUsuario"),
                     "id_pessoa": user_data.get("idPessoa"),
                     "nome": user_data.get("nome"),
-                    "id_conta": user_data.get("idConta")
+                    "id_conta": user_data.get("idConta"),
                 }
             return {"autenticado": False}
-        
+
         # Obter todos os dados do usuário a partir do CPF
         dados_completos = get_user_data_by_cpf(cpf)
-        
+
         if dados_completos:
             dados_usuario = dados_completos["dados_usuario"]
             dados_pessoa = dados_completos["dados_pessoa"]
             contas = dados_completos["contas"]
-            
+
             # Usar o id_conta fornecido pelos dados completos
             id_conta = dados_completos.get("id_conta")
-            
+
             # Se não houver id_conta, usar o da primeira conta se houver contas
             if not id_conta and contas and len(contas) > 0:
                 # Verificar se estamos lidando com dados da API ou do banco de dados
@@ -62,14 +68,10 @@ def obter_dados_usuario():
                     id_conta = contas[0].get("idConta")
                 elif isinstance(contas[0], dict) and "id_conta" in contas[0]:
                     id_conta = contas[0].get("id_conta")
-            
+
             # Criar dicionário de retorno com os dados disponíveis
-            resultado = {
-                "autenticado": True,
-                "cpf": cpf,
-                "id_conta": id_conta
-            }
-            
+            resultado = {"autenticado": True, "cpf": cpf, "id_conta": id_conta}
+
             # Adicionar dados do usuário se disponíveis
             if isinstance(dados_usuario, dict):
                 # Verificar se estamos lidando com dados da API ou do banco de dados
@@ -77,7 +79,7 @@ def obter_dados_usuario():
                     resultado["id_usuario"] = dados_usuario.get("idUsuario")
                 elif "id_usuario" in dados_usuario:
                     resultado["id_usuario"] = dados_usuario.get("id_usuario")
-            
+
             # Adicionar dados da pessoa se disponíveis
             if isinstance(dados_pessoa, dict):
                 # Verificar se estamos lidando com dados da API ou do banco de dados
@@ -95,12 +97,12 @@ def obter_dados_usuario():
                     resultado["telefone"] = dados_pessoa.get("telefone")
                     resultado["sexo"] = dados_pessoa.get("sexo")
                     resultado["dt_nascimento"] = dados_pessoa.get("dt_nascimento")
-            
+
             # Adicionar contas
             resultado["contas"] = contas
-            
+
             return resultado
-            
+
         return {"autenticado": False}
     except Exception as e:
         st.error(f"Erro ao obter dados do usuário: {e}")
@@ -110,63 +112,63 @@ def obter_dados_usuario():
 # Função para obter os investimentos do cliente
 def obter_investimentos_cliente(id_conta=None):
     """Obtém os investimentos do cliente usando o token e o CPF.
-    
+
     Args:
-        id_conta (int, optional): ID da conta para filtrar investimentos. 
+        id_conta (int, optional): ID da conta para filtrar investimentos.
             Se None, tenta buscar todas as contas do usuário.
     """
     # Importar funções para atualização de preços
     from etl.criptomoedas import get_current_prices
     from etl.acoes import get_current_prices_acoes
-    
+
     try:
         # Verificar se há token na sessão
         token = st.session_state.get("token")
         if not token:
             st.error("Usuário não autenticado. Faça login novamente.")
             return None, None, None, None
-        
+
         # Obter o CPF do usuário logado usando a API
         cpf = get_user_cpf()
         if not cpf:
             st.error("Não foi possível obter o CPF do usuário.")
             return None, None, None, None
-            
+
         if st.session_state.get("debug_mode", False):
             st.sidebar.success(f"CPF obtido da API: {cpf}")
-        
+
         # 1. Obter dados do usuário pelo CPF
         df_usuario = get_usuario_by_cpf_senha(cpf, None)
         if df_usuario.empty:
             st.error("Usuário não encontrado no banco de dados.")
             return None, None, None, None
-            
+
         id_usuario = df_usuario.iloc[0]["id_usuario"]
-        
+
         # 2. Obter dados da pessoa pelo ID do usuário
         df_pessoa = get_pessoa_by_id_usuario(id_usuario)
         if df_pessoa.empty:
             st.error("Dados da pessoa não encontrados no banco de dados.")
             return None, None, None, None
-            
+
         id_pessoa = df_pessoa.iloc[0]["id_pessoa"]
-        
+
         # 3. Obter contas pelo ID da pessoa
         df_contas = get_contas_by_id_pessoa(id_pessoa)
         if df_contas.empty:
             st.warning("Usuário não possui contas cadastradas no banco de dados.")
             return None, None, None, None
-        
+
         # Filtrar por id_conta se fornecido
         if id_conta:
             df_contas = df_contas[df_contas["id_conta"] == id_conta]
             if df_contas.empty:
                 st.warning(f"Conta com ID {id_conta} não encontrada no banco de dados.")
                 return None, None, None, None
-        
+
         # Usar as contas obtidas diretamente do banco de dados
         contas_cliente = df_contas
-            
+
     except Exception as e:
         st.error(f"Erro ao obter investimentos: {e}")
         return None, None, None, None
@@ -227,9 +229,7 @@ def obter_investimentos_cliente(id_conta=None):
                     # Usar id_fundo em vez de id_investimento
                     investimentos.append(
                         {
-                            "id": fundo[
-                                "id_fundo"
-                            ],
+                            "id": fundo["id_fundo"],
                             "nome": fundo["nome"],
                             "tipo": "Fundo",
                             "valor_investido": valor_investido,
@@ -256,23 +256,27 @@ def obter_investimentos_cliente(id_conta=None):
                 if ativo:
                     # Criar um DataFrame temporário com esta criptomoeda para atualizar o preço
                     cripto_temp_df = pd.DataFrame([cripto])
-                    
+
                     # Atualizar preços usando a função get_current_prices
                     atualizado_df = get_current_prices(cripto_temp_df)
-                    
+
                     # Extrair informações do DataFrame atualizado
                     valor_investido = atualizado_df.iloc[0]["valor_investido_br"]
                     preco_compra = atualizado_df.iloc[0]["preco_compra_br"]
                     preco_atual = atualizado_df.iloc[0]["preco_atual_br"]
-                    
+
                     # Calcular valor atual baseado na diferença de preço
                     if preco_compra > 0:
                         valor_atual = (valor_investido / preco_compra) * preco_atual
                     else:
-                        valor_atual = valor_investido  # Fallback se preço de compra for zero
-                    
+                        valor_atual = (
+                            valor_investido  # Fallback se preço de compra for zero
+                        )
+
                     # Calcular rentabilidade baseada na variação de preço
-                    rentabilidade = (preco_atual / preco_compra) - 1 if preco_compra > 0 else 0
+                    rentabilidade = (
+                        (preco_atual / preco_compra) - 1 if preco_compra > 0 else 0
+                    )
 
                     investimentos.append(
                         {
@@ -303,21 +307,23 @@ def obter_investimentos_cliente(id_conta=None):
                 if ativo:
                     # Criar um DataFrame temporário com esta ação para atualizar o preço
                     acao_temp_df = pd.DataFrame([acao])
-                    
+
                     # Atualizar preços usando a função get_current_prices_acoes
                     atualizado_df = get_current_prices_acoes(acao_temp_df)
-                    
+
                     # Extrair informações do DataFrame atualizado
                     quantidade = atualizado_df.iloc[0]["quantidade"]
                     preco_inicial = atualizado_df.iloc[0]["preco_inicial"]
                     preco_atual = atualizado_df.iloc[0]["preco_atual_br"]
-                    
+
                     # Calcular valor investido e valor atual
                     valor_investido = quantidade * preco_inicial
                     valor_atual = quantidade * preco_atual
-                    
+
                     # Calcular rentabilidade baseada na variação de preço
-                    rentabilidade = (preco_atual / preco_inicial) - 1 if preco_inicial > 0 else 0
+                    rentabilidade = (
+                        (preco_atual / preco_inicial) - 1 if preco_inicial > 0 else 0
+                    )
 
                     investimentos.append(
                         {
@@ -346,10 +352,13 @@ def obter_investimentos_cliente(id_conta=None):
     alocacao_atual_investido["percentual"] = (
         alocacao_atual_investido["valor_investido"] / total_investido
     ) * 100
-    
+
     # Calcular alocação atual por perfil de risco baseado no valor atual
     alocacao_atual = (
-        df_investimentos.groupby("perfil_risco")["valor_atual"].sum().reset_index().rename(columns={"valor_atual": "valor_investido"})
+        df_investimentos.groupby("perfil_risco")["valor_atual"]
+        .sum()
+        .reset_index()
+        .rename(columns={"valor_atual": "valor_investido"})
     )
     total_atual = alocacao_atual["valor_investido"].sum()
     alocacao_atual["percentual"] = (
@@ -523,7 +532,7 @@ else:
     if dados_usuario["autenticado"]:
         st.session_state.usuario_autenticado = True
         st.session_state.dados_usuario = dados_usuario
-        
+
         # # Exibir informações de debug (remover em produção)
         # if st.session_state.get("debug_mode", False):
         #     st.sidebar.write("Dados do usuário:", dados_usuario)
@@ -552,7 +561,7 @@ if not st.session_state.usuario_autenticado:
                 if token:
                     # Obter dados do usuário usando o token
                     dados_usuario = obter_dados_usuario()
-                    
+
                     if dados_usuario["autenticado"]:
                         st.session_state.usuario_autenticado = True
                         st.session_state.dados_usuario = dados_usuario
@@ -575,17 +584,17 @@ else:
         if "token" in st.session_state:
             del st.session_state.token
         st.rerun()
-    
+
     # Botão para ativar/desativar modo de depuração (apenas para desenvolvimento)
     # with st.sidebar.expander("Opções avançadas"):
     #     if st.checkbox("Modo de depuração", value=st.session_state.get("debug_mode", False)):
     #         st.session_state.debug_mode = True
     #         st.info("Modo de depuração ativado. Informações detalhadas serão exibidas.")
-            
+
     #         # Exibir informações do usuário
     #         st.write("**Dados do usuário:**")
     #         st.json(st.session_state.dados_usuario)
-            
+
     #         # Exibir CPF do usuário
     #         cpf = get_user_cpf()
     #         st.write(f"**CPF do usuário:** {cpf if cpf else 'Não disponível'}")
@@ -598,13 +607,15 @@ else:
     #     st.rerun()
 
     # Obter investimentos do cliente usando o ID da conta
-    df_investimentos, alocacao_atual, perfil_cliente, alocacao_atual_investido = obter_investimentos_cliente(
-        st.session_state.dados_usuario["id_conta"]
+    df_investimentos, alocacao_atual, perfil_cliente, alocacao_atual_investido = (
+        obter_investimentos_cliente(st.session_state.dados_usuario["id_conta"])
     )
-    
+
     # Exibir informações de debug
     if st.session_state.get("debug_mode", False):
-        st.sidebar.info(f"Buscando investimentos para a conta ID: {st.session_state.dados_usuario['id_conta']}")
+        st.sidebar.info(
+            f"Buscando investimentos para a conta ID: {st.session_state.dados_usuario['id_conta']}"
+        )
 
     if df_investimentos is None:
         st.warning("Você não possui investimentos ativos.")
@@ -616,25 +627,33 @@ else:
         # Vamos primeiro obter os dados para as tabelas da aba detalhes
         # Fundos
         df_fundos_tab = df_investimentos[df_investimentos["tipo"] == "Fundo"].copy()
-        
+
         # Criptomoedas
         _, _, _, _, _, df_cripto_original, df_acoes_original = get_all_dataframes()
-        ids_cripto = df_investimentos[df_investimentos["tipo"] == "Cripto"]["id"].tolist()
-        df_cripto_tab = df_cripto_original[df_cripto_original["id_cripto"].isin(ids_cripto)].copy()
+        ids_cripto = df_investimentos[df_investimentos["tipo"] == "Cripto"][
+            "id"
+        ].tolist()
+        df_cripto_tab = df_cripto_original[
+            df_cripto_original["id_cripto"].isin(ids_cripto)
+        ].copy()
         from etl.criptomoedas import get_current_prices
+
         cripto_df_tab = get_current_prices(df_cripto_tab.copy(deep=True))
-        
+
         # Ações
         ids_acoes = df_investimentos[df_investimentos["tipo"] == "Ações"]["id"].tolist()
-        df_acoes_tab = df_acoes_original[df_acoes_original["id_acoes"].isin(ids_acoes)].copy()
+        df_acoes_tab = df_acoes_original[
+            df_acoes_original["id_acoes"].isin(ids_acoes)
+        ].copy()
         from etl.acoes import get_current_prices_acoes
+
         acoes_df_tab = get_current_prices_acoes(df_acoes_tab.copy(deep=True))
-        
+
         # Agora somamos os valores investidos de cada tipo de investimento
         total_fundos = df_fundos_tab["valor_investido"].sum()
         total_criptos = cripto_df_tab["valor_investido_br"].sum()
         total_acoes = acoes_df_tab["valor_investido_br"].sum()
-        
+
         # Total investido é a soma de todos os tipos de investimento
         total_investido = total_fundos + total_criptos + total_acoes
 
@@ -683,9 +702,7 @@ else:
                 .reset_index()
                 .rename(columns={"valor_atual": "valor_investido"})
             )
-            total_atual_corrigido = alocacao_atual_corrigida[
-                "valor_investido"
-            ].sum()
+            total_atual_corrigido = alocacao_atual_corrigida["valor_investido"].sum()
             alocacao_atual_corrigida["percentual"] = (
                 alocacao_atual_corrigida["valor_investido"] / total_atual_corrigido
             ) * 100
@@ -699,33 +716,43 @@ else:
             # Preparar os dados para análise e recomendações
             # Calculando o total investido para usar na alocação ideal
             total_investido_original = df_investimentos["valor_investido"].sum()
-            
+
             # Recalcular alocação ideal com base no total investido original
-            alocacao_ideal_recalculada = calcular_alocacao_ideal(perfil_cliente, total_investido_original)
-            
+            alocacao_ideal_recalculada = calcular_alocacao_ideal(
+                perfil_cliente, total_investido_original
+            )
+
             # Agora comparamos a alocação atual (baseada nos valores atuais) com a ideal
-            alocacao_dict = {
-                row["perfil_risco"]: {
+            alocacao_dict = {}
+
+            # Garantir que todos os perfis de risco estejam presentes no dicionário
+            for _, row in alocacao_atual_corrigida.iterrows():
+                perfil = row["perfil_risco"]
+                # Verificar se o perfil existe na alocação ideal
+                ideal_perc = 0
+                ideal_valor = 0
+
+                # Buscar valores ideais para este perfil
+                ideal_match = alocacao_ideal_recalculada[
+                    alocacao_ideal_recalculada["perfil_risco"] == perfil
+                ]
+                if not ideal_match.empty:
+                    ideal_perc = ideal_match["percentual"].values[0]
+                    ideal_valor = ideal_match["valor_investido"].values[0]
+
+                # Adicionar ao dicionário
+                alocacao_dict[perfil] = {
                     "atual_perc": row["percentual"],
                     "atual_valor": row["valor_investido"],  # Este já é o valor atual
-                    "ideal_perc": alocacao_ideal_recalculada[
-                        alocacao_ideal_recalculada["perfil_risco"] == row["perfil_risco"]
-                    ]["percentual"].values[0]
-                    if row["perfil_risco"] in alocacao_ideal_recalculada["perfil_risco"].values
-                    else 0,
-                    "ideal_valor": alocacao_ideal_recalculada[
-                        alocacao_ideal_recalculada["perfil_risco"] == row["perfil_risco"]
-                    ]["valor_investido"].values[0]
-                    if row["perfil_risco"] in alocacao_ideal_recalculada["perfil_risco"].values
-                    else 0,
+                    "ideal_perc": ideal_perc,
+                    "ideal_valor": ideal_valor,
                 }
-                for _, row in alocacao_atual_corrigida.iterrows()
-            }
 
             # Adicionar perfis que existem no ideal mas não no atual
             for _, row in alocacao_ideal_recalculada.iterrows():
-                if row["perfil_risco"] not in alocacao_dict:
-                    alocacao_dict[row["perfil_risco"]] = {
+                perfil = row["perfil_risco"]
+                if perfil not in alocacao_dict:
+                    alocacao_dict[perfil] = {
                         "atual_perc": 0,
                         "atual_valor": 0,
                         "ideal_perc": row["percentual"],
@@ -735,9 +762,7 @@ else:
             # Verificar se a carteira está fora do perfil recomendado, com tolerancia de 5%
             perfis_desbalanceados = []
             for perfil, dados in alocacao_dict.items():
-                if (
-                    abs(dados["atual_perc"] - dados["ideal_perc"]) > 5
-                ):
+                if abs(dados["atual_perc"] - dados["ideal_perc"]) > 5:
                     perfis_desbalanceados.append((perfil, dados))
 
             if perfis_desbalanceados:
@@ -745,28 +770,28 @@ else:
                     "⚠️ Sua carteira está desbalanceada em relação ao seu perfil:"
                 )
 
-                # Ordenar os perfis na ordem: Baixo, Moderado, Alto
-                ordem_perfis = {"Baixo": 0, "Moderado": 1, "Alto": 2}
+                # Ordenar os perfis na ordem: BAIXO, MODERADO, ALTO
+                ordem_perfis = {"BAIXO": 0, "MODERADO": 1, "ALTO": 2}
                 perfis_desbalanceados.sort(key=lambda x: ordem_perfis.get(x[0], 999))
 
                 # Lógica geral
                 recomendacoes = []
 
                 # Para perfil Conservador - tratar primeiro o Alto Risco, zerando
-                if perfil_cliente == "Conservador":
-                    # Verificar se tem investimentos em Alto
+                if perfil_cliente == "CONSERVADOR":
+                    # Verificar se tem investimentos em ALTO
                     if (
-                        "Alto" in alocacao_dict
-                        and alocacao_dict["Alto"]["atual_valor"] > 0
+                        "ALTO" in alocacao_dict
+                        and alocacao_dict["ALTO"]["atual_valor"] > 0
                     ):
-                        valor_alto = alocacao_dict["Alto"]["atual_valor"]
-                        # Verificar se pode mover para Moderado
+                        valor_alto = alocacao_dict["ALTO"]["atual_valor"]
+                        # Verificar se pode mover para MODERADO
                         espaco_moderado = (
                             (
-                                alocacao_dict["Moderado"]["ideal_valor"]
-                                - alocacao_dict["Moderado"]["atual_valor"]
+                                alocacao_dict["MODERADO"]["ideal_valor"]
+                                - alocacao_dict["MODERADO"]["atual_valor"]
                             )
-                            if "Moderado" in alocacao_dict
+                            if "MODERADO" in alocacao_dict
                             else 0
                         )
 
@@ -776,7 +801,7 @@ else:
 
                             if valor_para_moderado > 0:
                                 recomendacoes.append(
-                                    f"- **Realocação Alto → Moderado**: Transfira **R$ {valor_para_moderado:,.2f}** dos investimentos de risco **Alto** para **Moderado**".replace(
+                                    f"- **Realocação ALTO → MODERADO**: Transfira **R$ {valor_para_moderado:,.2f}** dos investimentos de risco **ALTO** para **MODERADO**".replace(
                                         ",", "X"
                                     )
                                     .replace(".", ",")
@@ -785,84 +810,90 @@ else:
 
                             if valor_para_baixo > 0:
                                 recomendacoes.append(
-                                    f"- **Realocação Alto → Baixo**: Transfira **R$ {valor_para_baixo:,.2f}** dos investimentos de risco **Alto** para **Baixo**".replace(
+                                    f"- **Realocação ALTO → BAIXO**: Transfira **R$ {valor_para_baixo:,.2f}** dos investimentos de risco **ALTO** para **BAIXO**".replace(
                                         ",", "X"
                                     )
                                     .replace(".", ",")
                                     .replace("X", ".")
+                                    .replace("BAI.O", "BAIXO")
+                                    .replace("BAI.O", "BAIXO")
                                 )
                         else:
-                            # Mover tudo para Baixo
+                            # Mover tudo para BAIXO
                             recomendacoes.append(
-                                f"- **Realocação Alto → Baixo**: Transfira **R$ {valor_alto:,.2f}** dos investimentos de risco **Alto** para **Baixo**".replace(
+                                f"- **Realocação ALTO → BAIXO**: Transfira **R$ {valor_alto:,.2f}** dos investimentos de risco **ALTO** para **BAIXO**".replace(
                                     ",", "X"
                                 )
                                 .replace(".", ",")
                                 .replace("X", ".")
+                                .replace("BAI.O", "BAIXO")
                             )
 
-                    # Verificar se Moderado está acima do ideal
+                    # Verificar se MODERADO está acima do ideal
                     if (
-                        "Moderado" in alocacao_dict
-                        and alocacao_dict["Moderado"]["atual_valor"]
-                        > alocacao_dict["Moderado"]["ideal_valor"]
+                        "MODERADO" in alocacao_dict
+                        and alocacao_dict["MODERADO"]["atual_valor"]
+                        > alocacao_dict["MODERADO"]["ideal_valor"]
                     ):
                         excesso_moderado = (
-                            alocacao_dict["Moderado"]["atual_valor"]
-                            - alocacao_dict["Moderado"]["ideal_valor"]
+                            alocacao_dict["MODERADO"]["atual_valor"]
+                            - alocacao_dict["MODERADO"]["ideal_valor"]
                         )
                         recomendacoes.append(
-                            f"- **Realocação Moderado → Baixo**: Transfira **R$ {excesso_moderado:,.2f}** dos investimentos de risco **Moderado** para **Baixo**".replace(
+                            f"- **Realocação MODERADO → BAIXO**: Transfira **R$ {excesso_moderado:,.2f}** dos investimentos de risco **MODERADO** para **BAIXO**".replace(
                                 ",", "X"
                             )
                             .replace(".", ",")
                             .replace("X", ".")
+                            .replace("BAI.O", "BAIXO")
+                            .replace("BAI.O", "BAIXO")
                         )
 
-                    # Verificar se Baixo precisa de mais investimento
+                    # Verificar se BAIXO precisa de mais investimento
                     if (
-                        "Baixo" in alocacao_dict
-                        and alocacao_dict["Baixo"]["atual_valor"]
-                        < alocacao_dict["Baixo"]["ideal_valor"]
+                        "BAIXO" in alocacao_dict
+                        and alocacao_dict["BAIXO"]["atual_valor"]
+                        < alocacao_dict["BAIXO"]["ideal_valor"]
                     ):
                         falta_baixo = (
-                            alocacao_dict["Baixo"]["ideal_valor"]
-                            - alocacao_dict["Baixo"]["atual_valor"]
+                            alocacao_dict["BAIXO"]["ideal_valor"]
+                            - alocacao_dict["BAIXO"]["atual_valor"]
                         )
                         # Se ainda faltam investimentos após realocações
                         falta_apos_realocacoes = True
                         for rec in recomendacoes:
-                            if "→ Baixo" in rec:
+                            if "→ BAIXO" in rec:
                                 falta_apos_realocacoes = False
 
                         if falta_apos_realocacoes:
                             recomendacoes.append(
-                                f"- **Aumentar Baixo**: Invista mais **R$ {falta_baixo:,.2f}** em ativos de risco **Baixo**".replace(
+                                f"- **Aumentar BAIXO**: Invista mais **R$ {falta_baixo:,.2f}** em ativos de risco **BAIXO**".replace(
                                     ",", "X"
                                 )
                                 .replace(".", ",")
                                 .replace("X", ".")
+                                .replace("BAI.O", "BAIXO")
                             )
 
                 # Para perfil Moderado
-                elif perfil_cliente == "Moderado":
-                    # Verificar se Alto está acima do ideal
+                elif perfil_cliente == "MODERADO":
+                    # Verificar se ALTO está acima do ideal
                     if (
-                        "Alto" in alocacao_dict
-                        and alocacao_dict["Alto"]["atual_valor"]
-                        > alocacao_dict["Alto"]["ideal_valor"]
+                        "ALTO" in alocacao_dict
+                        and alocacao_dict["ALTO"]["atual_valor"]
+                        > alocacao_dict["ALTO"]["ideal_valor"]
                     ):
                         excesso_alto = (
-                            alocacao_dict["Alto"]["atual_valor"]
-                            - alocacao_dict["Alto"]["ideal_valor"]
+                            alocacao_dict["ALTO"]["atual_valor"]
+                            - alocacao_dict["ALTO"]["ideal_valor"]
                         )
-                        # Verificar espaço em Moderado e Baixo
+                        # Verificar espaço em MODERADO e BAIXO
                         espaco_moderado = (
                             (
-                                alocacao_dict["Moderado"]["ideal_valor"]
-                                - alocacao_dict["Moderado"]["atual_valor"]
+                                alocacao_dict["MODERADO"]["ideal_valor"]
+                                - alocacao_dict["MODERADO"]["atual_valor"]
                             )
-                            if "Moderado" in alocacao_dict
+                            if "MODERADO" in alocacao_dict
                             else 0
                         )
 
@@ -872,7 +903,7 @@ else:
 
                             if valor_para_moderado > 0:
                                 recomendacoes.append(
-                                    f"- **Realocação Alto → Moderado**: Transfira **R$ {valor_para_moderado:,.2f}** dos investimentos de risco **Alto** para **Moderado**".replace(
+                                    f"- **Realocação ALTO → MODERADO**: Transfira **R$ {valor_para_moderado:,.2f}** dos investimentos de risco **ALTO** para **MODERADO**".replace(
                                         ",", "X"
                                     )
                                     .replace(".", ",")
@@ -881,80 +912,85 @@ else:
 
                             if valor_para_baixo > 0:
                                 recomendacoes.append(
-                                    f"- **Realocação Alto → Baixo**: Transfira **R$ {valor_para_baixo:,.2f}** dos investimentos de risco **Alto** para **Baixo**".replace(
+                                    f"- **Realocação ALTO → BAIXO**: Transfira **R$ {valor_para_baixo:,.2f}** dos investimentos de risco **ALTO** para **BAIXO**".replace(
                                         ",", "X"
                                     )
                                     .replace(".", ",")
                                     .replace("X", ".")
+                                    .replace("BAI.O", "BAIXO")
+                                    .replace("BAI.O", "BAIXO")
                                 )
                         else:
-                            # Mover tudo para Baixo
+                            # Mover tudo para BAIXO
                             recomendacoes.append(
-                                f"- **Realocação Alto → Baixo**: Transfira **R$ {excesso_alto:,.2f}** dos investimentos de risco **Alto** para **Baixo**".replace(
+                                f"- **Realocação ALTO → BAIXO**: Transfira **R$ {excesso_alto:,.2f}** dos investimentos de risco **ALTO** para **BAIXO**".replace(
                                     ",", "X"
                                 )
                                 .replace(".", ",")
                                 .replace("X", ".")
+                                .replace("BAI.O", "BAIXO")
                             )
 
-                    # Verificar se Moderado está acima do ideal
+                    # Verificar se MODERADO está acima do ideal
                     if (
-                        "Moderado" in alocacao_dict
-                        and alocacao_dict["Moderado"]["atual_valor"]
-                        > alocacao_dict["Moderado"]["ideal_valor"]
+                        "MODERADO" in alocacao_dict
+                        and alocacao_dict["MODERADO"]["atual_valor"]
+                        > alocacao_dict["MODERADO"]["ideal_valor"]
                     ):
                         excesso_moderado = (
-                            alocacao_dict["Moderado"]["atual_valor"]
-                            - alocacao_dict["Moderado"]["ideal_valor"]
+                            alocacao_dict["MODERADO"]["atual_valor"]
+                            - alocacao_dict["MODERADO"]["ideal_valor"]
                         )
                         recomendacoes.append(
-                            f"- **Realocação Moderado → Baixo**: Transfira **R$ {excesso_moderado:,.2f}** dos investimentos de risco **Moderado** para **Baixo**".replace(
+                            f"- **Realocação MODERADO → BAIXO**: Transfira **R$ {excesso_moderado:,.2f}** dos investimentos de risco **MODERADO** para **BAIXO**".replace(
                                 ",", "X"
                             )
                             .replace(".", ",")
                             .replace("X", ".")
+                            .replace("BAI.O", "BAIXO")
+                            .replace("BAI.O", "BAIXO")
                         )
 
-                    # Verificar se Alto precisa de mais investimento
+                    # Verificar se ALTO precisa de mais investimento
                     if (
-                        "Alto" in alocacao_dict
-                        and alocacao_dict["Alto"]["atual_valor"]
-                        < alocacao_dict["Alto"]["ideal_valor"]
+                        "ALTO" in alocacao_dict
+                        and alocacao_dict["ALTO"]["atual_valor"]
+                        < alocacao_dict["ALTO"]["ideal_valor"]
                     ):
                         falta_alto = (
-                            alocacao_dict["Alto"]["ideal_valor"]
-                            - alocacao_dict["Alto"]["atual_valor"]
+                            alocacao_dict["ALTO"]["ideal_valor"]
+                            - alocacao_dict["ALTO"]["atual_valor"]
                         )
                         recomendacoes.append(
-                            f"- **Aumentar Alto**: Invista mais **R$ {falta_alto:,.2f}** em ativos de risco **Alto**".replace(
+                            f"- **Aumentar ALTO**: Invista mais **R$ {falta_alto:,.2f}** em ativos de risco **ALTO**".replace(
                                 ",", "X"
                             )
                             .replace(".", ",")
                             .replace("X", ".")
                         )
 
-                    # Verificar se Moderado precisa de mais investimento
+                    # Verificar se MODERADO precisa de mais investimento
                     if (
-                        "Moderado" in alocacao_dict
-                        and alocacao_dict["Moderado"]["atual_valor"]
-                        < alocacao_dict["Moderado"]["ideal_valor"]
+                        "MODERADO" in alocacao_dict
+                        and alocacao_dict["MODERADO"]["atual_valor"]
+                        < alocacao_dict["MODERADO"]["ideal_valor"]
                     ):
                         falta_moderado = (
-                            alocacao_dict["Moderado"]["ideal_valor"]
-                            - alocacao_dict["Moderado"]["atual_valor"]
+                            alocacao_dict["MODERADO"]["ideal_valor"]
+                            - alocacao_dict["MODERADO"]["atual_valor"]
                         )
-                        
-                        # Verificar se já existe recomendação de transferência para Moderado
+
+                        # Verificar se já existe recomendação de transferência para MODERADO
                         transferencia_para_moderado = False
                         for rec in recomendacoes:
-                            if "→ Moderado" in rec:
+                            if "→ MODERADO" in rec:
                                 transferencia_para_moderado = True
                                 break
-                                
-                        # Só adicionar recomendação se não houver transferência para Moderado
+
+                        # Só adicionar recomendação se não houver transferência para MODERADO
                         if not transferencia_para_moderado:
                             recomendacoes.append(
-                                f"- **Aumentar Moderado**: Invista mais **R$ {falta_moderado:,.2f}** em ativos de risco **Moderado**".replace(
+                                f"- **Aumentar MODERADO**: Invista mais **R$ {falta_moderado:,.2f}** em ativos de risco **MODERADO**".replace(
                                     ",", "X"
                                 )
                                 .replace(".", ",")
@@ -963,81 +999,83 @@ else:
 
                 # Para perfil Arrojado
                 else:  # perfil_cliente == "Arrojado"
-                    # Verificar se Baixo e Moderado estão acima do ideal
+                    # Verificar se BAIXO e MODERADO estão acima do ideal
                     if (
-                        "Baixo" in alocacao_dict
-                        and alocacao_dict["Baixo"]["atual_valor"]
-                        > alocacao_dict["Baixo"]["ideal_valor"]
+                        "BAIXO" in alocacao_dict
+                        and alocacao_dict["BAIXO"]["atual_valor"]
+                        > alocacao_dict["BAIXO"]["ideal_valor"]
                     ):
                         excesso_baixo = (
-                            alocacao_dict["Baixo"]["atual_valor"]
-                            - alocacao_dict["Baixo"]["ideal_valor"]
+                            alocacao_dict["BAIXO"]["atual_valor"]
+                            - alocacao_dict["BAIXO"]["ideal_valor"]
                         )
                         # Verificar qual categoria precisa de mais investimento
                         if (
-                            "Alto" in alocacao_dict
-                            and alocacao_dict["Alto"]["atual_valor"]
-                            < alocacao_dict["Alto"]["ideal_valor"]
+                            "ALTO" in alocacao_dict
+                            and alocacao_dict["ALTO"]["atual_valor"]
+                            < alocacao_dict["ALTO"]["ideal_valor"]
                         ):
                             recomendacoes.append(
-                                f"- **Realocação Baixo → Alto**: Transfira **R$ {excesso_baixo:,.2f}** dos investimentos de risco **Baixo** para **Alto**".replace(
+                                f"- **Realocação BAIXO → ALTO**: Transfira **R$ {excesso_baixo:,.2f}** dos investimentos de risco **BAIXO** para **ALTO**".replace(
                                     ",", "X"
                                 )
                                 .replace(".", ",")
                                 .replace("X", ".")
+                                .replace("BAI.O", "BAIXO")
                             )
                         elif (
-                            "Moderado" in alocacao_dict
-                            and alocacao_dict["Moderado"]["atual_valor"]
-                            < alocacao_dict["Moderado"]["ideal_valor"]
+                            "MODERADO" in alocacao_dict
+                            and alocacao_dict["MODERADO"]["atual_valor"]
+                            < alocacao_dict["MODERADO"]["ideal_valor"]
                         ):
                             recomendacoes.append(
-                                f"- **Realocação Baixo → Moderado**: Transfira **R$ {excesso_baixo:,.2f}** dos investimentos de risco **Baixo** para **Moderado**".replace(
+                                f"- **Realocação BAIXO → MODERADO**: Transfira **R$ {excesso_baixo:,.2f}** dos investimentos de risco **BAIXO** para **MODERADO**".replace(
                                     ",", "X"
                                 )
                                 .replace(".", ",")
                                 .replace("X", ".")
+                                .replace("BAI.O", "BAIXO")
                             )
 
                     if (
-                        "Moderado" in alocacao_dict
-                        and alocacao_dict["Moderado"]["atual_valor"]
-                        > alocacao_dict["Moderado"]["ideal_valor"]
+                        "MODERADO" in alocacao_dict
+                        and alocacao_dict["MODERADO"]["atual_valor"]
+                        > alocacao_dict["MODERADO"]["ideal_valor"]
                     ):
                         excesso_moderado = (
-                            alocacao_dict["Moderado"]["atual_valor"]
-                            - alocacao_dict["Moderado"]["ideal_valor"]
+                            alocacao_dict["MODERADO"]["atual_valor"]
+                            - alocacao_dict["MODERADO"]["ideal_valor"]
                         )
                         if (
-                            "Alto" in alocacao_dict
-                            and alocacao_dict["Alto"]["atual_valor"]
-                            < alocacao_dict["Alto"]["ideal_valor"]
+                            "ALTO" in alocacao_dict
+                            and alocacao_dict["ALTO"]["atual_valor"]
+                            < alocacao_dict["ALTO"]["ideal_valor"]
                         ):
                             recomendacoes.append(
-                                f"- **Realocação Moderado → Alto**: Transfira **R$ {excesso_moderado:,.2f}** dos investimentos de risco **Moderado** para **Alto**".replace(
+                                f"- **Realocação MODERADO → ALTO**: Transfira **R$ {excesso_moderado:,.2f}** dos investimentos de risco **MODERADO** para **ALTO**".replace(
                                     ",", "X"
                                 )
                                 .replace(".", ",")
                                 .replace("X", ".")
                             )
 
-                    # Verificar se Alto precisa de mais investimento
+                    # Verificar se ALTO precisa de mais investimento
                     if (
-                        "Alto" in alocacao_dict
-                        and alocacao_dict["Alto"]["atual_valor"]
-                        < alocacao_dict["Alto"]["ideal_valor"]
+                        "ALTO" in alocacao_dict
+                        and alocacao_dict["ALTO"]["atual_valor"]
+                        < alocacao_dict["ALTO"]["ideal_valor"]
                     ):
                         falta_alto = (
-                            alocacao_dict["Alto"]["ideal_valor"]
-                            - alocacao_dict["Alto"]["atual_valor"]
+                            alocacao_dict["ALTO"]["ideal_valor"]
+                            - alocacao_dict["ALTO"]["atual_valor"]
                         )
                         # Verificar se já há recomendação para este caso
                         tem_recomendacao_alto = any(
-                            "Alto" in rec and "→" in rec for rec in recomendacoes
+                            "ALTO" in rec and "→" in rec for rec in recomendacoes
                         )
                         if not tem_recomendacao_alto:
                             recomendacoes.append(
-                                f"- **Aumentar Alto**: Invista mais **R$ {falta_alto:,.2f}** em ativos de risco **Alto**".replace(
+                                f"- **Aumentar ALTO**: Invista mais **R$ {falta_alto:,.2f}** em ativos de risco **ALTO**".replace(
                                     ",", "X"
                                 )
                                 .replace(".", ",")
@@ -1049,7 +1087,7 @@ else:
 
                 # Exibir situação atual vs. ideal em formato de tabela para facilitar visualização
                 dados_tabela = []
-                for perfil in ["Baixo", "Moderado", "Alto"]:
+                for perfil in ["BAIXO", "MODERADO", "ALTO"]:
                     if perfil in alocacao_dict:
                         dados_tabela.append(
                             {
@@ -1069,7 +1107,11 @@ else:
                             }
                         )
 
-                st.table(pd.DataFrame(dados_tabela))
+                # Verificar se há dados na tabela
+                if dados_tabela:
+                    st.table(pd.DataFrame(dados_tabela))
+                else:
+                    st.info("Não há dados disponíveis para análise da carteira.")
 
                 st.subheader("🔄 Recomendações de Realocação")
                 if recomendacoes:
@@ -1082,12 +1124,14 @@ else:
         with tab2:
             # Calcular total investido original para alocação ideal
             total_investido_original = df_investimentos["valor_investido"].sum()
-            
+
             # Recalcular alocação ideal com base no total investido original
             # (apenas se ainda não foi calculado na aba Comparativo)
-            if 'alocacao_ideal_recalculada' not in locals():
-                alocacao_ideal_recalculada = calcular_alocacao_ideal(perfil_cliente, total_investido_original)
-                
+            if "alocacao_ideal_recalculada" not in locals():
+                alocacao_ideal_recalculada = calcular_alocacao_ideal(
+                    perfil_cliente, total_investido_original
+                )
+
             col1, col2 = st.columns(2)
             # Gráfico de pizza da composição atual (baseado nos valores atuais)
             fig_pizza_atual = criar_grafico_pizza(alocacao_atual_corrigida)
@@ -1131,7 +1175,9 @@ else:
             if tipo_filtro == "Todos":
                 df_fundos = df_investimentos[df_investimentos["tipo"] == "Fundo"]
                 # Carregar diretamente do banco para ter acesso a todas as colunas necessárias
-                _, _, _, _, _, df_cripto_original, df_acoes_original = get_all_dataframes()
+                _, _, _, _, _, df_cripto_original, df_acoes_original = (
+                    get_all_dataframes()
+                )
 
                 # Filtrar apenas as criptomoedas relevantes baseado nos investimentos
                 ids_cripto = df_investimentos[df_investimentos["tipo"] == "Cripto"][
@@ -1148,9 +1194,9 @@ else:
                     df_fundos["data_aplicacao"]
                 )
                 hoje = datetime.now()
-                df_fundos.loc[:, "meses_decorridos"] = df_fundos["data_aplicacao"].apply(
-                    lambda x: (hoje.year - x.year) * 12 + (hoje.month - x.month)
-                )
+                df_fundos.loc[:, "meses_decorridos"] = df_fundos[
+                    "data_aplicacao"
+                ].apply(lambda x: (hoje.year - x.year) * 12 + (hoje.month - x.month))
 
                 # Cálculo usando juros compostos, exatamente igual ao da função obter_investimentos_cliente()
                 df_fundos.loc[:, "valor_atual"] = df_fundos.apply(
@@ -1176,13 +1222,15 @@ else:
                             "valor_atual",
                         ]
                     ]
-                    
+
                     # Renomear colunas para melhor acessibilidade
-                    tabela_fundos = tabela_fundos.rename(columns={
-                        "nome": "Nome",
-                        "valor_investido": "Valor Investido (BR)",
-                        "valor_atual": "Valor Atual (BR)",
-                    })
+                    tabela_fundos = tabela_fundos.rename(
+                        columns={
+                            "nome": "Nome",
+                            "valor_investido": "Valor Investido (BR)",
+                            "valor_atual": "Valor Atual (BR)",
+                        }
+                    )
 
                     # Formatar valores
                     tabela_fundos_formatted = tabela_fundos.style.format(
@@ -1220,13 +1268,15 @@ else:
                             "valor_atual",
                         ]
                     ]
-                    
+
                     # Renomear colunas para melhor acessibilidade
-                    tabela_cripto = tabela_cripto.rename(columns={
-                        "nome": "Nome",
-                        "valor_investido_br": "Valor Investido (BR)",
-                        "valor_atual": "Valor Atual (BR)",
-                    })
+                    tabela_cripto = tabela_cripto.rename(
+                        columns={
+                            "nome": "Nome",
+                            "valor_investido_br": "Valor Investido (BR)",
+                            "valor_atual": "Valor Atual (BR)",
+                        }
+                    )
                     tabela_cripto_formatted = tabela_cripto.style.format(
                         {
                             "Valor Investido (BR)": "R$ {:.2f}",
@@ -1270,13 +1320,15 @@ else:
                             "valor_atual",
                         ]
                     ]
-                    
+
                     # Renomear colunas para melhor acessibilidade
-                    tabela_acoes = tabela_acoes.rename(columns={
-                        "nome": "Nome",
-                        "valor_investido_br": "Valor Investido (BR)",
-                        "valor_atual": "Valor Atual (BR)",
-                    })
+                    tabela_acoes = tabela_acoes.rename(
+                        columns={
+                            "nome": "Nome",
+                            "valor_investido_br": "Valor Investido (BR)",
+                            "valor_atual": "Valor Atual (BR)",
+                        }
+                    )
 
                     # Formatar valores
                     tabela_acoes_formatted = tabela_acoes.style.format(
@@ -1341,18 +1393,20 @@ else:
                                 "perfil_risco",
                             ]
                         ]
-                        
+
                         # Renomear colunas para melhor acessibilidade
-                        tabela_cripto = tabela_cripto.rename(columns={
-                            "nome": "Nome",
-                            "valor_investido_br": "Valor Investido (BR)",
-                            "preco_compra_br": "Preço de Compra (BR)",
-                            "preco_atual_br": "Preço Atual (BR)",
-                            "variacao_percentual_br": "Variação Percentual",
-                            "valor_atual": "Valor Atual (BR)",
-                            "data_aplicacao": "Data de Aplicação",
-                            "perfil_risco": "Perfil de Risco",
-                        })
+                        tabela_cripto = tabela_cripto.rename(
+                            columns={
+                                "nome": "Nome",
+                                "valor_investido_br": "Valor Investido (BR)",
+                                "preco_compra_br": "Preço de Compra (BR)",
+                                "preco_atual_br": "Preço Atual (BR)",
+                                "variacao_percentual_br": "Variação Percentual",
+                                "valor_atual": "Valor Atual (BR)",
+                                "data_aplicacao": "Data de Aplicação",
+                                "perfil_risco": "Perfil de Risco",
+                            }
+                        )
 
                         # Formatar valores
                         tabela_cripto_formatted = tabela_cripto.style.format(
@@ -1414,19 +1468,21 @@ else:
                                 "perfil_risco",
                             ]
                         ]
-                        
+
                         # Renomear colunas para melhor acessibilidade
-                        tabela_acoes = tabela_acoes.rename(columns={
-                            "nome": "Nome",
-                            "quantidade": "Quantidade",
-                            "valor_investido_br": "Valor Investido (BR)",
-                            "preco_compra_br": "Preço de Compra (BR)",
-                            "preco_atual_br": "Preço Atual (BR)",
-                            "variacao_percentual_br": "Variação Percentual",
-                            "valor_atual": "Valor Atual (BR)",
-                            "data_aplicacao": "Data de Aplicação",
-                            "perfil_risco": "Perfil de Risco",
-                        })
+                        tabela_acoes = tabela_acoes.rename(
+                            columns={
+                                "nome": "Nome",
+                                "quantidade": "Quantidade",
+                                "valor_investido_br": "Valor Investido (BR)",
+                                "preco_compra_br": "Preço de Compra (BR)",
+                                "preco_atual_br": "Preço Atual (BR)",
+                                "variacao_percentual_br": "Variação Percentual",
+                                "valor_atual": "Valor Atual (BR)",
+                                "data_aplicacao": "Data de Aplicação",
+                                "perfil_risco": "Perfil de Risco",
+                            }
+                        )
 
                         # Formatar valores
                         tabela_acoes_formatted = tabela_acoes.style.format(
@@ -1452,20 +1508,22 @@ else:
                 # Filtro por data
                 if len(data_filtro) == 2:
                     data_inicio, data_fim = data_filtro
-                    
+
                     # Converter as datas para timestamp para comparação
                     data_inicio_ts = pd.Timestamp(data_inicio)
                     data_fim_ts = pd.Timestamp(data_fim)
-                    
+
                     # Filtrar usando timestamp
                     df_filtrado = df_filtrado.copy()
                     # Garantir que data_aplicacao seja datetime
-                    df_filtrado.loc[:, "data_aplicacao"] = pd.to_datetime(df_filtrado["data_aplicacao"])
-                    
+                    df_filtrado.loc[:, "data_aplicacao"] = pd.to_datetime(
+                        df_filtrado["data_aplicacao"]
+                    )
+
                     # Filtrar usando comparação de timestamps
                     df_filtrado = df_filtrado[
-                        (df_filtrado["data_aplicacao"] >= data_inicio_ts) &
-                        (df_filtrado["data_aplicacao"] <= data_fim_ts)
+                        (df_filtrado["data_aplicacao"] >= data_inicio_ts)
+                        & (df_filtrado["data_aplicacao"] <= data_fim_ts)
                     ]
 
                 # Inicializar df_exibicao para evitar erro de variável não definida
@@ -1476,21 +1534,23 @@ else:
                     # Formatar tabela para exibição
                     df_exibicao = df_filtrado.copy()
 
-                    # Formatar colunas para exibição
-                    # Criar uma cópia explícita para evitar SettingWithCopyWarning
                     df_exibicao = df_exibicao.copy()
-                    
-                    # Formatar a data sem depender do atributo .dt
-                    # Primeiro, verificamos se a coluna já é datetime
+
                     try:
                         # Tentar converter para datetime e depois para string no formato desejado
-                        df_exibicao.loc[:, "data_aplicacao"] = pd.to_datetime(df_exibicao["data_aplicacao"]).dt.strftime("%d/%m/%Y")
+                        df_exibicao.loc[:, "data_aplicacao"] = pd.to_datetime(
+                            df_exibicao["data_aplicacao"]
+                        ).dt.strftime("%d/%m/%Y")
                     except AttributeError:
                         # Se falhar, usar uma abordagem alternativa com apply
-                        df_exibicao.loc[:, "data_aplicacao"] = df_exibicao["data_aplicacao"].apply(
-                            lambda x: pd.to_datetime(x).strftime("%d/%m/%Y") if pd.notna(x) else ""
+                        df_exibicao.loc[:, "data_aplicacao"] = df_exibicao[
+                            "data_aplicacao"
+                        ].apply(
+                            lambda x: pd.to_datetime(x).strftime("%d/%m/%Y")
+                            if pd.notna(x)
+                            else ""
                         )
-                    
+
                     df_exibicao.loc[:, "valor_investido"] = df_exibicao[
                         "valor_investido"
                     ].apply(
@@ -1498,16 +1558,18 @@ else:
                         .replace(".", ",")
                         .replace("X", ".")
                     )
-                    
-                    df_exibicao.loc[:, "valor_atual"] = df_exibicao["valor_atual"].apply(
+
+                    df_exibicao.loc[:, "valor_atual"] = df_exibicao[
+                        "valor_atual"
+                    ].apply(
                         lambda x: f"R$ {x:,.2f}".replace(",", "X")
                         .replace(".", ",")
                         .replace("X", ".")
                     )
-                    
-                    df_exibicao.loc[:, "rentabilidade"] = df_exibicao["rentabilidade"].apply(
-                        lambda x: f"{x * 100:.2f}%"
-                    )
+
+                    df_exibicao.loc[:, "rentabilidade"] = df_exibicao[
+                        "rentabilidade"
+                    ].apply(lambda x: f"{x * 100:.2f}%")
 
                     # Adicionar a variação percentual
                     df_exibicao.loc[:, "Variação"] = df_filtrado.apply(
@@ -1543,7 +1605,7 @@ else:
                     ]
 
                     # Exibir tabela
-                    st.dataframe(df_exibicao, use_container_width=True)
+                    st.dataframe(df_exibicao, use_container_width=True, hide_index=True)
 
 # Adicionar o footer
 add_footer()
