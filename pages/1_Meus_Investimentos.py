@@ -175,7 +175,7 @@ def obter_investimentos_cliente(id_conta=None):
     investimentos = []
 
     # Armazenar o perfil do cliente
-    perfil_cliente = "Conservador"
+    perfil_cliente = "CONSERVADOR"
 
     # Para cada conta do cliente
     for _, conta in contas_cliente.iterrows():
@@ -361,18 +361,18 @@ def obter_investimentos_cliente(id_conta=None):
 
 # Função para calcular a alocação ideal com base no perfil
 def calcular_alocacao_ideal(perfil, total_investido):
-    if perfil == "Conservador":
+    if perfil == "CONSERVADOR":
         return pd.DataFrame(
             {
-                "perfil_risco": ["Baixo", "Moderado", "Alto"],
+                "perfil_risco": ["BAIXO", "MODERADO", "ALTO"],
                 "percentual": [70, 30, 0],
                 "valor_investido": [total_investido * 0.7, total_investido * 0.3, 0],
             }
         )
-    elif perfil == "Moderado":
+    elif perfil == "MODERADO":
         return pd.DataFrame(
             {
-                "perfil_risco": ["Baixo", "Moderado", "Alto"],
+                "perfil_risco": ["BAIXO", "MODERADO", "ALTO"],
                 "percentual": [40, 50, 10],
                 "valor_investido": [
                     total_investido * 0.4,
@@ -381,10 +381,10 @@ def calcular_alocacao_ideal(perfil, total_investido):
                 ],
             }
         )
-    else:  # Arrojado
+    else:  # ARROJADO
         return pd.DataFrame(
             {
-                "perfil_risco": ["Baixo", "Moderado", "Alto"],
+                "perfil_risco": ["BAIXO", "MODERADO", "ALTO"],
                 "percentual": [20, 30, 50],
                 "valor_investido": [
                     total_investido * 0.2,
@@ -398,7 +398,7 @@ def calcular_alocacao_ideal(perfil, total_investido):
 # Função para criar o gráfico de barras comparativo
 def criar_grafico_comparativo(alocacao_atual, alocacao_ideal):
     # Garantir a ordem correta das categorias
-    categorias_ordem = ["Baixo", "Moderado", "Alto"]
+    categorias_ordem = ["BAIXO", "MODERADO", "ALTO"]
 
     # Reorganizar os DataFrames para seguir a ordem desejada
     alocacao_atual = (
@@ -466,9 +466,9 @@ def criar_grafico_pizza(alocacao_atual):
         title="Composição Atual da Carteira",
         color="perfil_risco",
         color_discrete_map={
-            "Baixo": "#00BFA5",
-            "Moderado": "#0288D1",
-            "Alto": "#D32F2F",
+            "BAIXO": "#00BFA5",
+            "MODERADO": "#0288D1",
+            "ALTO": "#D32F2F",
         },
         hole=0.4,
     )
@@ -494,9 +494,9 @@ def criar_grafico_pizza_ideal(alocacao_ideal):
         title="Composição Ideal para seu Perfil",
         color="perfil_risco",
         color_discrete_map={
-            "Baixo": "#00BFA5",
-            "Moderado": "#0288D1",
-            "Alto": "#D32F2F",
+            "BAIXO": "#00BFA5",
+            "MODERADO": "#0288D1",
+            "ALTO": "#D32F2F",
         },
         hole=0.4,
     )
