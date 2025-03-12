@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 from style.style_config import apply_custom_style, add_footer
+import pytz
 
 # Configuração global da página
 st.set_page_config(
@@ -117,9 +118,19 @@ st.markdown("""
 """)
 
 # Adicionando informações sobre a última atualização
+# Obtém o horário atual em UTC, usando datetime.now(timezone.utc)
+utc_now = datetime.now(timezone.utc)
+
+# Define o fuso horário de America/Recife
+timezone_recife = pytz.timezone("America/Recife")
+
+# Converte o horário UTC para o horário de Recife
+recife_now = utc_now.astimezone(timezone_recife)
+
 st.sidebar.markdown(
-    f"Última atualização: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
+    f"Última atualização: {recife_now.strftime('%d/%m/%Y %H:%M:%S')}"
 )
+
 
 # Adicionando um bloco de informações adicionais
 st.markdown("""
