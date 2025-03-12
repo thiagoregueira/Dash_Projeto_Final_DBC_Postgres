@@ -20,7 +20,7 @@ from db.db import (
 # Aplicar estilo customizado
 apply_custom_style()
 
-st.title("Meus Investimentos 📊")
+st.title("Meus Investimentos")
 
 
 # Função para obter os dados do usuário logado

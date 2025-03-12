@@ -201,7 +201,7 @@ def fazer_previsoes_linear(modelo, scaler, df, indicador, periodos=6):
 df_dict = carregar_dados()
 
 # Título da página
-st.title("Indicadores Econômicos do Brasil 📊")
+st.title("Indicadores Econômicos do Brasil")
 st.markdown("---")
 
 st.markdown("""

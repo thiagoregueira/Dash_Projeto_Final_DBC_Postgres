@@ -9,7 +9,7 @@ from style.style_config import apply_custom_style, COLORS, add_footer
 # Aplicar estilo customizado
 apply_custom_style()
 
-st.title("Câmbio em relação ao real(R$) 💱")
+st.title("Câmbio em relação ao real(R$)")
 
 # # Verifica se o arquivo histórico existe, se não, baixa os dados
 # if not pd.io.common.file_exists('../results/historico_cambio.csv'):

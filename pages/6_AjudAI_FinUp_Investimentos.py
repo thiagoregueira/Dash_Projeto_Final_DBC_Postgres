@@ -22,7 +22,7 @@ from style.style_config import apply_custom_style, COLORS, add_footer
 apply_custom_style()
 
 # Título da página
-st.title("❓❔ AjudAI FinUp Investimentos ")
+st.title("AjudAI FinUp Investimentos")
 
 # As variáveis de ambiente já são carregadas automaticamente do arquivo .streamlit/secrets.toml
 

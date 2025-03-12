@@ -10,7 +10,7 @@ from style.style_config import apply_custom_style, COLORS, add_footer
 # Aplicar estilo customizado
 apply_custom_style()
 
-st.title("Ações Brasileiras 📈")
+st.title("Ações Brasileiras")
 
 # Obter caminho absoluto para o arquivo
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
