@@ -19,7 +19,7 @@
 
 ## Descrição
 
-O projeto FinUp AjudAI Investimentos é uma aplicação desenvolvida para auxiliar investidores na análise e acompanhamento de diversos ativos financeiros. Ele integra dados de ações, câmbio, criptomoedas e índices econômicos, fornecendo uma visão consolidada do mercado. Além disso, conta com um sistema de perguntas e respostas (RAG) integrado com o Gemini para tirar dúvidas sobre o mercado financeiro. O projeto possui um layout construido em `Streamlit`.
+O projeto FinUp AjudAI Investimentos é uma aplicação desenvolvida para auxiliar investidores na análise e acompanhamento de diversos ativos financeiros. Ele integra dados de ações, câmbio, criptomoedas e índices econômicos, fornecendo uma visão consolidada do mercado. Além disso, conta com um sistema de perguntas e respostas (RAG) integrado com o Gemini para tirar dúvidas sobre o mercado financeiro. O projeto possui um layout construído em `Streamlit`.
 
 ## Funcionalidades
 
@@ -29,7 +29,7 @@ O projeto FinUp AjudAI Investimentos é uma aplicação desenvolvida para auxili
 - **Indicadores Econômicos:** Monitoramento de principais indicadores econômicos.
 - **RAG (Retrieval-Augmented Generation):** Sistema de Perguntas e Respostas com Gemini para sanar dúvidas.
 - **Banco de Dados:** Gerenciamento local de dados com `ChromaDB` e `SQLite`.
-- **Autenticação**: O projeto contem um sistema simples de autenticação de usuarios.
+- **Autenticação**: O projeto contém um sistema simples de autenticação de usuários.
 
 ## Tecnologias Utilizadas
 
@@ -69,7 +69,7 @@ O projeto FinUp AjudAI Investimentos é uma aplicação desenvolvida para auxili
 ## Uso
 
 1. **Execute o ETL**:
-    - O projeto contem uma script `main_process.py` para executar todo o processo de ETL.
+    - O projeto contém um script `main_process.py` para executar todo o processo de ETL.
 
     ```bash
     python main_process.py
@@ -123,8 +123,6 @@ O projeto FinUp AjudAI Investimentos é uma aplicação desenvolvida para auxili
 │   ├── 4_Criptomoedas.py
 │   ├── 5_Indicadores.py
 │   └── 6_AjudAI_FinUp_Investimentos.py
-├── perguntas.txt
-├── rag-gemini.py
 ├── README.md
 ├── requirements.txt
 ├── results
@@ -142,7 +140,7 @@ O projeto FinUp AjudAI Investimentos é uma aplicação desenvolvida para auxili
   - `user.py`: Lógica de gerenciamento de usuários.
   - `token.json`: Armazenamento de tokens
 - **`chroma/`:** Banco de dados vetorial ChromaDB.
-  - `chroma.sqlite3`: Arquivo de banco de dados principal do ChromaDB.
+  - `chroma.sqlite3`: Arquivo de banco de dados vetorial para "alimentar" nossa IA.
   - `281905e4-e6b3-4cd5-9f15-4638d07d16e4/` : Informações relacionadas ao banco de dados.
 - **`db/`:** Módulo para interação com o banco de dados.
   - `db.py`: Funções de interação com o banco de dados.
@@ -172,12 +170,10 @@ O projeto FinUp AjudAI Investimentos é uma aplicação desenvolvida para auxili
   - `IBXLDia_12-03-25.csv`: Exemplo de dados do IBrX 50.
 - `style/`: Configurações de Estilo.
   - `style_config.py`: Arquivo com o CSS do projeto.
-- `finup_ajudAI_investimentos.md`: Possivel arquivo com mais informações do projeto.
-- `Home.py`: Pagina inicial do `Streamlit`.
-- `insert.sql`: Script para popular a base de dados `Chroma`.
-- `main_process.py`: Script para rodar todo o `ETL` de dados
-- `perguntas.txt`: Arquivo de Perguntas e respostas do projeto.
-- `rag-gemini.py`: Script principal para o RAG com Gemini.
+- `finup_ajudAI_investimentos.md`: Arquivo responsável por "ensinar" nossa IA.
+- `Home.py`: Página inicial do `Streamlit`.
+- `insert.sql`: Script para popular a base de dados.
+- `main_process.py`: Script para rodar todo o `ETL` de dados.
 - `requirements.txt`: Lista de dependências do projeto.
 - `er-9.png`: Diagrama Entidade Relacionamento do Banco de Dados
 
@@ -193,12 +189,12 @@ O script `main_process.py` coordena a execução de todos os scripts do processo
 
 ## RAG com Gemini
 
-O arquivo `rag-gemini.py` contém a lógica para o sistema de Perguntas e Respostas, que usa o modelo Gemini para entender e responder a perguntas sobre investimentos. Ele busca informações relevantes em um banco de dados vetorial (ChromaDB) e utiliza o modelo Gemini para gerar respostas contextualizadas.
-O arquivo `perguntas.txt` contem perguntas e respostas para o projeto.
+O arquivo `6_AjudAI_FinUp_Investimentos.py` contém a lógica para o sistema de chat com a IA, que usa o modelo Gemini para entender e responder a perguntas sobre investimentos. Ele busca informações relevantes em um banco de dados vetorial (`chroma.sqlite3`) e utiliza o modelo Gemini para gerar respostas contextualizadas.
+O arquivo `finup_ajudAI_investimentos.md` contém tudo referente a nossos investimentos e alimenta a nossa IA.
 
 ## Licença
 
-Este projeto não possui licensa definida.
+Este projeto não possui licença definida.
 
 ## Imagens do Projeto
 
