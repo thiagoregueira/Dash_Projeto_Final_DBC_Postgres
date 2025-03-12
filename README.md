@@ -86,6 +86,58 @@ O projeto FinUp AjudAI Investimentos é uma aplicação desenvolvida para auxili
 
 ## Estrutura de Pastas
 
+```bash
+.
+├── auth
+│   ├── token.json
+│   └── user.py
+├── chroma
+│   ├── 281905e4-e6b3-4cd5-9f15-4638d07d16e4
+│   └── chroma.sqlite3
+├── db
+│   ├── db.py
+├── er-9.png
+├── etl
+│   ├── acoes.py
+│   ├── cambio.py
+│   ├── criptomoedas.py
+│   ├── indices_economicos.py
+│   ├── scraping_ibrx50.py
+│   └── tratar_ibrx50.py
+├── finup_ajudAI_investimentos.md
+├── Home.py
+├── images
+│   ├── icons
+│   │   ├── logo_icon.ico
+│   │   └── logo_icon.svg
+│   └── logo
+│       ├── logo_branca.png
+│       ├── logo.png
+│       └── logo-semfundo.png
+├── insert.sql
+├── main_process.py
+├── pages
+│   ├── 1_Meus_Investimentos.py
+│   ├── 2_Cambio.py
+│   ├── 3_Acoes_BR.py
+│   ├── 4_Criptomoedas.py
+│   ├── 5_Indicadores.py
+│   └── 6_AjudAI_FinUp_Investimentos.py
+├── perguntas.txt
+├── rag-gemini.py
+├── README.md
+├── requirements.txt
+├── results
+│   ├── dados_economicos.csv
+│   ├── etl_process.log
+│   ├── historico_acoes.csv
+│   ├── historico_cambio.csv
+│   ├── historico_criptomoedas.csv
+│   └── IBXLDia_12-03-25.csv
+└── style
+    └── style_config.py
+```
+
 - **`auth/`:** Módulo para autenticação de usuários.
   - `user.py`: Lógica de gerenciamento de usuários.
   - `token.json`: Armazenamento de tokens
