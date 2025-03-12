@@ -19,7 +19,7 @@ def apply_custom_style():
     # Adicionar logo na sidebar antes de qualquer outro conteúdo
     import streamlit as st
 
-    st.sidebar.image("images/logo/logo-semfundo.png", width=150)
+    st.sidebar.image("images/logo/logo_branca.png", width=150)
     st.sidebar.markdown("---")
 
     # Aplicar CSS customizado
