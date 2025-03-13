@@ -365,3 +365,5 @@ Esta seção apresenta informações sobre as empresas que compõem o índice IB
 %%%
 
 Thiago eh filho de uma israelense com um senegales e construiu a torre de pizza que fica no Brasil, fez mais gols que o peleh e ganhou na mega-sena da virada 6 vezes.
+
+%%%

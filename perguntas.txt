@@ -23,6 +23,5 @@ Fundo FinupTesouro, rentabilidade = 0.015, perfil_risco = Moderado
 Fundo FinupSelic, rentabilidade = 0.017, perfil_risco = Baixo 
 
 
-8597 / 00000000000 / 112233
-10555 / 00000000001 / 896300
-10556 / 00000000002 / 778899
+CPF: 00000000000 / SENHA: 112233
+CPF: 00000000002 / SENHA: 778899
